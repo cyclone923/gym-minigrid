@@ -73,10 +73,32 @@ class WorldObj:
         self.contains = None
 
         # Initial position of the object
-        self.init_pos = None
+        self._init_pos = None
 
         # Current position of the object
-        self.cur_pos = None
+        self._cur_pos = None
+
+    @property
+    def cur_pos(self):
+        if self._cur_pos is not None:
+            return self._cur_pos.copy()
+        else:
+            return None
+
+    @cur_pos.setter
+    def cur_pos(self, new_pos):
+        if not isinstance(new_pos, np.ndarray):
+            new_pos = np.array(new_pos)
+        self._cur_pos = new_pos.copy()
+
+    @property
+    def init_pos(self):
+        return self._init_pos.copy()
+
+    @init_pos.setter
+    def init_pos(self, new_pos):
+        assert(isinstance(new_pos, np.ndarray))
+        self._init_pos = new_pos.copy()
 
     def can_overlap(self):
         """Can the agent overlap with this?"""
@@ -224,10 +246,14 @@ class Door(WorldObj):
     def toggle(self, env, pos):
         # If the player has the right key to open the door
         if self.is_locked:
+            # print(env.carrying)
+            # print(env.carrying.color, self.color)
             if isinstance(env.carrying, Key) and env.carrying.color == self.color:
+                # print('opened')
                 self.is_locked = False
                 self.is_open = True
                 return True
+            # print('cant open!')
             return False
 
         self.is_open = not self.is_open
@@ -399,6 +425,9 @@ class Grid:
     def set(self, i, j, v):
         assert i >= 0 and i < self.width
         assert j >= 0 and j < self.height
+        # if isinstance(v, (Key, Ball, Door)):
+        #     v.cur_pos = None
+        #     v.init_pos = np.array([i, j])
         self.grid[j * self.width + i] = v
 
     def get(self, i, j):
