@@ -252,6 +252,7 @@ class Door(WorldObj):
                 # print('opened')
                 self.is_locked = False
                 self.is_open = True
+                env.carrying = None
                 return True
             # print('cant open!')
             return False
@@ -736,6 +737,7 @@ class MiniGridEnv(gym.Env):
         self.height = height
         self.max_steps = max_steps
         self.see_through_walls = see_through_walls
+        self.carrying = None
 
         # Starting position and direction for the agent
         self.start_pos = None
@@ -748,6 +750,7 @@ class MiniGridEnv(gym.Env):
         self.reset()
 
     def reset(self):
+        self.carrying = None
         # Generate a new random grid at the start of each episode
         # To keep the same grid for each episode, call env.seed() with
         # the same seed before calling env.reset()
@@ -766,7 +769,6 @@ class MiniGridEnv(gym.Env):
         self.agent_dir = self.start_dir
 
         # Item picked up, being carried, initially nothing
-        self.carrying = None
 
         # Step count since episode start
         self.step_count = 0
