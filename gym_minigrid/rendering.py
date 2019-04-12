@@ -143,7 +143,7 @@ class Renderer:
 
         width = self.width
         height = self.height
-        shape = (width, height, 3)
+        shape = (height, width, 3)
 
         numBytes = self.width * self.height * 3
         buf = self.img.bits().asstring(numBytes)
