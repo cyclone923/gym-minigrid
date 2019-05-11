@@ -1124,6 +1124,7 @@ class MiniGridEnv(gym.Env):
 
         reward = 0
         done = False
+        stuck = False
 
         # Get the position in front of the agent
         fwd_pos = self.front_pos
@@ -1145,11 +1146,14 @@ class MiniGridEnv(gym.Env):
         elif action == self.actions.forward:
             if fwd_cell == None or fwd_cell.can_overlap():
                 self.agent_pos = fwd_pos
-            if fwd_cell != None and fwd_cell.type == 'goal':
-                done = True
-                reward = self._reward()
-            if fwd_cell != None and fwd_cell.type == 'lava':
-                done = True
+            else:
+                if fwd_cell != None and fwd_cell.type == 'goal':
+                    done = True
+                    reward = self._reward()
+                if fwd_cell != None and fwd_cell.type == 'lava':
+                    done = True
+                stuck = True
+
 
         # Pick up an object
         elif action == self.actions.pickup:
@@ -1158,6 +1162,8 @@ class MiniGridEnv(gym.Env):
                     self.carrying = fwd_cell
                     self.carrying.cur_pos = np.array([-1, -1])
                     self.grid.set(*fwd_pos, None)
+            else:
+                stuck = True
 
         # Drop an object
         elif action == self.actions.drop:
@@ -1165,11 +1171,15 @@ class MiniGridEnv(gym.Env):
                 self.grid.set(*fwd_pos, self.carrying)
                 self.carrying.cur_pos = fwd_pos
                 self.carrying = None
+            else:
+                stuck = True
 
         # Toggle/activate an object
         elif action == self.actions.toggle:
             if fwd_cell:
                 fwd_cell.toggle(self, fwd_pos)
+            else:
+                stuck = True
 
         # Done action (not used by default)
         elif action == self.actions.done:
@@ -1183,7 +1193,7 @@ class MiniGridEnv(gym.Env):
 
         obs = self.gen_obs()
 
-        return obs, reward, done, {}
+        return obs, reward, done, stuck, {}
 
     def gen_obs_grid(self):
         """
