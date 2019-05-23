@@ -1340,6 +1340,7 @@ class MiniGridEnv(gym.Env):
 
         # Compute which cells are visible to the agent
         _, vis_mask = self.gen_obs_grid()
+        vis_mask = np.zeros((self.agent_view_size, self.agent_view_size))
 
         # Compute the absolute coordinates of the bottom-left corner
         # of the agent's view area
